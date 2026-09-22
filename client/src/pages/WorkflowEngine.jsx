@@ -51,15 +51,17 @@ export const WorkflowEngine = () => {
       }
     } catch (err) {
       console.warn('Using fallback parcel details');
+      if (!selectedParcel) setSelectedParcel(fallbackParcel);
     }
   };
 
   const fetchParcelDetails = async (id) => {
     try {
       const res = await axios.get(`/api/parcels/${id}`);
-      setSelectedParcel(res.data);
+      if (res.data) setSelectedParcel(res.data);
     } catch (err) {
       console.warn('Failed to fetch parcel details');
+      if (!selectedParcel) setSelectedParcel(fallbackParcel);
     }
   };
 

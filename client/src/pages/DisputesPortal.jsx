@@ -3,12 +3,35 @@ import axios from 'axios';
 import { AlertTriangle, ShieldAlert, Calendar, Plus, CheckCircle2, Cpu, User, FileText } from 'lucide-react';
 
 export const DisputesPortal = () => {
-  const [disputes, setDisputes] = useState([]);
+  const fallbackDisputes = [
+    {
+      id: 'DSP-8001',
+      parcelId: 'PCL-101',
+      raisedBy: 'Ramesh Chandra Yadav',
+      disputeType: 'Section 3C Objections & Boundary Discrepancy',
+      description: 'DGPS surveyed area (2.48 Ha) exceeds 7/12 revenue record area (2.45 Ha). Requesting boundary reconciliation.',
+      status: 'Under SLAO Hearing',
+      riskScore: 78,
+      createdAt: '2026-08-10'
+    },
+    {
+      id: 'DSP-8002',
+      parcelId: 'PCL-102',
+      raisedBy: 'Dattatray Pandurang Patil',
+      disputeType: 'Khata Share Ratio & Entitlement Claim',
+      description: 'Joint ownership khata share dispute between co-parceners.',
+      status: 'Resolved by Collectorate',
+      riskScore: 32,
+      createdAt: '2026-07-22'
+    }
+  ];
+
+  const [disputes, setDisputes] = useState(fallbackDisputes);
   const [showNewModal, setShowNewModal] = useState(false);
   const [parcels, setParcels] = useState([]);
 
   // New Grievance Form State
-  const [parcelId, setParcelId] = useState('');
+  const [parcelId, setParcelId] = useState('PCL-101');
   const [raisedBy, setRaisedBy] = useState('Akshat Agal');
   const [disputeType, setDisputeType] = useState('Joint Ownership & Title Claim');
   const [description, setDescription] = useState('');
@@ -21,9 +44,10 @@ export const DisputesPortal = () => {
   const fetchDisputes = async () => {
     try {
       const res = await axios.get('/api/disputes');
-      if (res.data) setDisputes(res.data);
+      if (res.data && res.data.length > 0) setDisputes(res.data);
     } catch (err) {
       console.warn('Using fallback disputes list');
+      setDisputes(fallbackDisputes);
     }
   };
 

@@ -3,12 +3,37 @@ import axios from 'axios';
 import { CreditCard, CheckCircle2, Clock, Landmark, Send, ArrowUpRight, ShieldCheck } from 'lucide-react';
 
 export const DBTLedger = () => {
-  const [dbtList, setDbtList] = useState([]);
+  const fallbackDbtList = [
+    {
+      id: 'DBT-9001',
+      parcelId: 'PCL-101',
+      landownerName: 'Ramesh Chandra Yadav',
+      bankAccount: 'PUNB01239910441',
+      ifscCode: 'PUNB0123991',
+      amountCr: 3.8546,
+      status: 'PFMS Disbursed',
+      utrNo: 'PFMS20260921008742',
+      timestamp: '2026-08-25 14:30'
+    },
+    {
+      id: 'DBT-9002',
+      parcelId: 'PCL-102',
+      landownerName: 'Dattatray Pandurang Patil',
+      bankAccount: 'SBIN00048210992',
+      ifscCode: 'SBIN0004821',
+      amountCr: 3.0160,
+      status: 'PFMS Disbursed',
+      utrNo: 'PFMS20260920004112',
+      timestamp: '2026-08-20 11:15'
+    }
+  ];
+
+  const [dbtList, setDbtList] = useState(fallbackDbtList);
   const [loading, setLoading] = useState(false);
   const [parcels, setParcels] = useState([]);
 
   // New DBT Form
-  const [parcelId, setParcelId] = useState('');
+  const [parcelId, setParcelId] = useState('PCL-101');
   const [landownerName, setLandownerName] = useState('Ramesh Chandra Yadav');
   const [bankAccount, setBank] = useState('PUNB01239910441');
   const [ifscCode, setIfsc] = useState('PUNB0123991');
@@ -22,9 +47,10 @@ export const DBTLedger = () => {
   const fetchDbt = async () => {
     try {
       const res = await axios.get('/api/dbt');
-      if (res.data) setDbtList(res.data);
+      if (res.data && res.data.length > 0) setDbtList(res.data);
     } catch (err) {
       console.warn('Using fallback DBT ledger');
+      setDbtList(fallbackDbtList);
     }
   };
 

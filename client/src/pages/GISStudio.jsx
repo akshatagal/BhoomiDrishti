@@ -4,8 +4,45 @@ import { Map, Crosshair, Camera, AlertTriangle, CheckCircle2, Shield, Eye, Layer
 import { GISMap } from '../components/GISMap';
 
 export const GISStudio = () => {
-  const [parcels, setParcels] = useState([]);
-  const [selectedParcel, setSelectedParcel] = useState(null);
+  const fallbackParcels = [
+    {
+      id: 'PCL-101',
+      surveyNo: 'SRV-2026-88A',
+      khasraNo: 'Kh-412/1',
+      village: 'Bambora',
+      district: 'Alwar',
+      state: 'Rajasthan',
+      landowner: 'Ramesh Chandra Yadav',
+      officialAreaHa: 2.45,
+      surveyedAreaHa: 2.48,
+      projectName: 'Delhi-Mumbai Industrial Corridor Expressway (Phase IV)',
+      acquisitionStatus: 'Compensation Assessed (Sec 3G)',
+      currentStage: 8,
+      dgpsStatus: 'DGPS Verified',
+      lat: 27.5530,
+      lng: 76.6346
+    },
+    {
+      id: 'PCL-102',
+      surveyNo: 'SRV-2026-92B',
+      khasraNo: 'Kh-108/4',
+      village: 'Kharbao',
+      district: 'Thane',
+      state: 'Maharashtra',
+      landowner: 'Dattatray Pandurang Patil',
+      officialAreaHa: 1.80,
+      surveyedAreaHa: 1.80,
+      projectName: 'Mumbai-Ahmedabad High-Speed Rail Corridor',
+      acquisitionStatus: 'DGPS Survey Complete',
+      currentStage: 5,
+      dgpsStatus: 'DGPS Verified',
+      lat: 19.2140,
+      lng: 73.0182
+    }
+  ];
+
+  const [parcels, setParcels] = useState(fallbackParcels);
+  const [selectedParcel, setSelectedParcel] = useState(fallbackParcels[0]);
 
   useEffect(() => {
     fetchParcels();
@@ -14,12 +51,16 @@ export const GISStudio = () => {
   const fetchParcels = async () => {
     try {
       const res = await axios.get('/api/parcels');
-      if (res.data) {
+      if (res.data && res.data.length > 0) {
         setParcels(res.data);
         setSelectedParcel(res.data[0]);
       }
     } catch (err) {
       console.warn('Using fallback parcels');
+      if (!selectedParcel) {
+        setParcels(fallbackParcels);
+        setSelectedParcel(fallbackParcels[0]);
+      }
     }
   };
 
