@@ -12,10 +12,45 @@ import {
 } from 'lucide-react';
 import { LarrDossierModal } from '../components/LarrDossierModal';
 
+const fallbackParcel = {
+  id: 'PCL-101',
+  surveyNo: 'SRV-2026-88A',
+  khasraNo: 'Kh-412/1',
+  village: 'Bambora',
+  district: 'Alwar',
+  state: 'Rajasthan',
+  landowner: 'Ramesh Chandra Yadav',
+  officialAreaHa: 2.45,
+  surveyedAreaHa: 2.48,
+  projectName: 'Delhi-Mumbai Industrial Corridor Expressway (Phase IV)',
+  acquisitionStatus: 'Sec 3G Award Declared',
+  currentStage: 9,
+  dgpsStatus: 'DGPS Verified',
+  stageHistory: [
+    { stage: 1, title: 'Preliminary Proposal', date: '2026-01-15', verifiedBy: 'SLAO Alwar', remarks: 'Alignment approved' },
+    { stage: 2, title: 'Social Impact Assessment', date: '2026-02-10', verifiedBy: 'Expert Committee', remarks: 'SIA cleared' },
+    { stage: 3, title: 'Expert Group Review', date: '2026-02-28', verifiedBy: 'State Nodal', remarks: 'Cleared' },
+    { stage: 4, title: 'Sec 11 Preliminary Notice', date: '2026-03-15', verifiedBy: 'Gazette', remarks: 'Published' },
+    { stage: 5, title: 'DGPS Boundary Cadastre', date: '2026-04-10', verifiedBy: 'Priyanka Surveyor', remarks: 'DGPS Surveyed' },
+    { stage: 6, title: 'R&R Scheme Formulation', date: '2026-05-01', verifiedBy: 'SLAO Officer', remarks: 'Families mapped' },
+    { stage: 7, title: 'Sec 19 Declaration', date: '2026-06-12', verifiedBy: 'Gazette', remarks: 'Declared' },
+    { stage: 8, title: 'Market Value Valuation', date: '2026-07-20', verifiedBy: 'Valuer', remarks: 'Circle rate 1.5x' },
+    { stage: 9, title: 'Sec 3G Award Declaration', date: '2026-08-25', verifiedBy: 'ADM Vikramaditya', remarks: 'Award ₹ 3.85 Cr' }
+  ],
+  larrAssessment: {
+    baseLandValueCr: 1.1025,
+    multiplier: 1.5,
+    solatiumCr: 1.6537,
+    interestCr: 0.1984,
+    assetsValueCr: 0.35,
+    totalCompensationCr: 3.8546
+  }
+};
+
 export const WorkflowEngine = () => {
   const { user } = useAuth();
-  const [parcels, setParcels] = useState([]);
-  const [selectedParcel, setSelectedParcel] = useState(null);
+  const [parcels, setParcels] = useState([fallbackParcel]);
+  const [selectedParcel, setSelectedParcel] = useState(fallbackParcel);
   const [showDossier, setShowDossier] = useState(false);
   const [loading, setLoading] = useState(false);
   const [remarks, setRemarks] = useState('');
@@ -45,13 +80,17 @@ export const WorkflowEngine = () => {
   const fetchParcels = async () => {
     try {
       const res = await axios.get('/api/parcels');
-      if (res.data && res.data.length > 0) {
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
         setParcels(res.data);
         fetchParcelDetails(res.data[0].id);
+      } else {
+        setParcels([fallbackParcel]);
+        setSelectedParcel(fallbackParcel);
       }
     } catch (err) {
       console.warn('Using fallback parcel details');
-      if (!selectedParcel) setSelectedParcel(fallbackParcel);
+      setParcels([fallbackParcel]);
+      setSelectedParcel(fallbackParcel);
     }
   };
 
@@ -61,7 +100,7 @@ export const WorkflowEngine = () => {
       if (res.data) setSelectedParcel(res.data);
     } catch (err) {
       console.warn('Failed to fetch parcel details');
-      if (!selectedParcel) setSelectedParcel(fallbackParcel);
+      setSelectedParcel(fallbackParcel);
     }
   };
 
@@ -85,9 +124,7 @@ export const WorkflowEngine = () => {
     }
   };
 
-  if (!selectedParcel) {
-    return <div className="p-8 text-center text-slate-500 font-bold">Loading LARR 2013 Workflow Engine...</div>;
-  }
+  const activeParcel = selectedParcel || fallbackParcel;
 
   const currentStageInfo = larrStages[selectedParcel.currentStage - 1] || larrStages[10];
 
